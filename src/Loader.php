@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the "Wordpress Wrapper" package.
+ * This file is part of the "Wordpress Wrapper Loader" package.
  *
  * (c) Skoropadskyi Roman <zipo.ckorop@gmail.com>
  *

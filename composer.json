@@ -1,7 +1,7 @@
 {
     "name": "zippovich2/wordpress-loader",
     "description": "Loading constants and environment variables from .env files.",
-    "keywords": ["wordpress", "loader", "environment", "variables", "constants", "env", ".env"],
+    "keywords": ["wordpress", "wrapper", "loader", "environment", "variables", "constants", "env", ".env"],
     "type": "library",
     "license": "MIT",
     "authors": [
