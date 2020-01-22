@@ -53,6 +53,7 @@ final class Loader
         'DISALLOW_FILE_EDIT' => true,
         'DISALLOW_FILE_MODS' => true,
         'WP_USE_THEMES' => true,
+        'DB_PREFIX' => 'wp_',
     ];
 
     /**
