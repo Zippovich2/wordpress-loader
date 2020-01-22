@@ -71,6 +71,14 @@ final class LoaderTest extends TestCase
 
         $loader = new Loader();
         $loader->load('/wp', $projectRoot, $webRoot);
+        $loader->debugSettings();
+
+        static::assertEquals(true, is_dir($projectRoot . '/var/log'));
+
+        static::assertEquals(true, defined('WP_DEBUG_DIR'));
+        static::assertEquals(true, defined('WP_DEBUG_LOG'));
+        static::assertEquals(constant('WP_DEBUG_DIR'), $_ENV['WP_DEBUG_DIR']);
+        static::assertEquals(constant('WP_DEBUG_LOG'), $_ENV['WP_DEBUG_LOG']);
 
         foreach (Loader::REQUIRED_CONSTANTS as $constant) {
             static::assertTrue(\defined($constant));

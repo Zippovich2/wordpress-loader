@@ -113,7 +113,7 @@ final class Loader
         $this->addEnv('WP_DEBUG_LOG', $_ENV['WP_DEBUG_DIR'] . \sprintf('/%s.log', $_ENV['APP_ENV']), true);
 
         if (!\file_exists($_ENV['WP_DEBUG_DIR'])) {
-            \mkdir($_ENV['WP_DEBUG_DIR']);
+            \mkdir($_ENV['WP_DEBUG_DIR'], 0777, true);
         }
     }
 
