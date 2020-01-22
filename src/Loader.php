@@ -14,14 +14,18 @@ declare(strict_types=1);
 namespace WordpressWrapper\Loader;
 
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Dotenv\Exception\FormatException;
+use Symfony\Component\Dotenv\Exception\PathException as DotEnvPathException;
 use WordpressWrapper\Loader\Exception\MissingEnvException;
+use WordpressWrapper\Loader\Exception\ParseException;
+use WordpressWrapper\Loader\Exception\PathException;
 
 /**
  * @author Roman Skoropadskyi <zipo.ckorop@gmail.com>
  */
 final class Loader
 {
-    private const REQUIRED_CONSTANTS = [
+    public const REQUIRED_CONSTANTS = [
         'APP_ENV',
         'DB_NAME',
         'DB_USER',
@@ -31,7 +35,7 @@ final class Loader
         'CONTENT_DIR',
     ];
 
-    private const DEFAULT_CONSTANTS = [
+    public const DEFAULT_CONSTANTS = [
         'DB_HOST' => 'localhost',
         'DB_CHARSET' => 'utf8',
         'DB_COLLATE' => '',
@@ -64,14 +68,25 @@ final class Loader
     /**
      * Loading env variables and define all required constants.
      *
-     * @param string $wpCorePath path to WordPress core dir
+     * @param string      $wpCorePath      path to WordPress core dir relative to document root
+     * @param string|null $projectRootPath path to the project root, project root must contain .env file.
+     * @param string|null $publicDirPath   path to the index.php
+     *
+     * @throws PathException  when a .env file does not exist or is not readable.
+     * @throws ParseException when .env file has a syntax error.
      */
-    public function load(string $wpCorePath = '/wp'): void
+    public function load(string $wpCorePath = '/wp', ?string $projectRootPath = null, ?string $publicDirPath = null): void
     {
-        $this->addEnv('PROJECT_ROOT', \dirname($_SERVER['DOCUMENT_ROOT']));
-        $this->addEnv('WEB_ROOT', $_SERVER['DOCUMENT_ROOT']);
+        $this->addEnv('PROJECT_ROOT', $projectRootPath ?? \dirname($_SERVER['DOCUMENT_ROOT']));
+        $this->addEnv('WEB_ROOT', $publicDirPath ?? $_SERVER['DOCUMENT_ROOT']);
 
-        $this->dotenv->loadEnv($_ENV['PROJECT_ROOT'] . '/.env');
+        try {
+            $this->dotenv->loadEnv($_ENV['PROJECT_ROOT'] . '/.env');
+        } catch (DotEnvPathException $e) {
+            throw new PathException($e->getMessage(), $e->getCode(), $e);
+        } catch (FormatException $e) {
+            throw new ParseException($e->getMessage(), $e->getCode(), $e);
+        }
 
         $this->checkRequirements();
         $this->defineConstants();
@@ -79,6 +94,12 @@ final class Loader
         $this->addEnv('WP_CONTENT_DIR', $_ENV['WEB_ROOT'] . $_ENV['CONTENT_DIR']);
         $this->addEnv('WP_CONTENT_URL', $_ENV['WP_HOME'] . $_ENV['CONTENT_DIR']);
         $this->addEnv('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath);
+
+        if (!\is_dir($_ENV['ABSPATH'])) {
+            \var_dump($_ENV['PROJECT_ROOT']);
+
+            throw new PathException(\sprintf('Unable to find wordpress core directory "%s".', $_ENV['ABSPATH']));
+        }
 
         $this->defineDefaultConstants();
     }
@@ -144,10 +165,16 @@ final class Loader
      * @param array  $oldEnvVars values which need merge with new values
      *
      * @return array return parsed and merged values
+     *
+     * @throws ParseException when .evn* files contain syntax error.
      */
     private function parseEnvFile(string $path, array $oldEnvVars = []): array
     {
-        $envVars = $this->dotenv->parse($this->getFileContent($path));
+        try {
+            $envVars = $this->dotenv->parse($this->getFileContent($path));
+        } catch (FormatException $e) {
+            throw new ParseException($e->getMessage(), $e->getCode(), $e);
+        }
 
         return \array_merge($oldEnvVars, $envVars);
     }
