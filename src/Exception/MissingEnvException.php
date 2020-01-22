@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace WordpressWrapper\Loader\Exception;
 
+/**
+ * @author Roman Skoropadskyi <zipo.ckorop@gmail.com>
+ */
 class MissingEnvException extends \DomainException
 {
     public function __construct(string $env, int $code = 0, \Throwable $previous = null)

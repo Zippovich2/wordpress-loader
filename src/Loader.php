@@ -16,6 +16,9 @@ namespace WordpressWrapper\Loader;
 use Symfony\Component\Dotenv\Dotenv;
 use WordpressWrapper\Loader\Exception\MissingEnvException;
 
+/**
+ * @author Roman Skoropadskyi <zipo.ckorop@gmail.com>
+ */
 final class Loader
 {
     private const REQUIRED_CONSTANTS = [
