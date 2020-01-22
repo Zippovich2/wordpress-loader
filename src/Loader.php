@@ -96,8 +96,6 @@ final class Loader
         $this->addEnv('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath);
 
         if (!\is_dir($_ENV['ABSPATH'])) {
-            \var_dump($_ENV['PROJECT_ROOT']);
-
             throw new PathException(\sprintf('Unable to find wordpress core directory "%s".', $_ENV['ABSPATH']));
         }
 
