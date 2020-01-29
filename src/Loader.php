@@ -78,8 +78,8 @@ final class Loader
      */
     public function load(string $wpCorePath = '/wp', ?string $projectRootPath = null, ?string $publicDirPath = null): void
     {
-        $this->addEnv('PROJECT_ROOT', $projectRootPath ?? \dirname($_SERVER['DOCUMENT_ROOT']));
-        $this->addEnv('WEB_ROOT', $publicDirPath ?? $_SERVER['DOCUMENT_ROOT']);
+        $this->addEnv('PROJECT_ROOT', $projectRootPath ?? $_ENV['PROJECT_ROOT'] ?? \dirname($_SERVER['DOCUMENT_ROOT']));
+        $this->addEnv('WEB_ROOT', $publicDirPath ?? $_ENV['WEB_ROOT'] ?? $_SERVER['DOCUMENT_ROOT']);
 
         try {
             $this->dotenv->loadEnv($_ENV['PROJECT_ROOT'] . '/.env');
@@ -92,9 +92,9 @@ final class Loader
         $this->checkRequirements();
         $this->defineConstants();
 
-        $this->addEnv('WP_CONTENT_DIR', $_ENV['WEB_ROOT'] . $_ENV['CONTENT_DIR']);
-        $this->addEnv('WP_CONTENT_URL', $_ENV['WP_HOME'] . $_ENV['CONTENT_DIR']);
-        $this->addEnv('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath);
+        $this->addEnv('WP_CONTENT_DIR', $_ENV['WEB_ROOT'] . $_ENV['CONTENT_DIR'], true);
+        $this->addEnv('WP_CONTENT_URL', $_ENV['WP_HOME'] . $_ENV['CONTENT_DIR'], true);
+        $this->addEnv('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath . '/', true);
 
         if (!\is_dir($_ENV['ABSPATH'])) {
             throw new PathException(\sprintf('Unable to find wordpress core directory "%s".', $_ENV['ABSPATH']));
