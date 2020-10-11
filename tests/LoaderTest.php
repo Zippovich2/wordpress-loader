@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace WordpressWrapper\Loader\Tests;
 
 use PHPUnit\Framework\TestCase;
-use WordpressWrapper\Loader\Exception\MissingEnvException;
+use WordpressWrapper\Loader\Exception\MissingConstantException;
 use WordpressWrapper\Loader\Exception\ParseException;
 use WordpressWrapper\Loader\Exception\PathException;
 use WordpressWrapper\Loader\Loader;
@@ -24,28 +24,19 @@ use WordpressWrapper\Loader\Loader;
  */
 final class LoaderTest extends TestCase
 {
-    public function testPathException1(): void
-    {
-        static::expectException(PathException::class);
+    public const PUBLIC_DIR = __DIR__ . '/Fixtures/public';
 
-        $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/PathException/1');
+    public function tearDown(): void
+    {
+        $_ENV = [];
     }
 
-    public function testPathException2(): void
+    public function testMissingConstException(): void
     {
-        static::expectException(PathException::class);
+        static::expectException(MissingConstantException::class);
 
         $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/PathException/2');
-    }
-
-    public function testMissingEnvException(): void
-    {
-        static::expectException(MissingEnvException::class);
-
-        $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/MissingEnvException');
+        $loader->load('/wp', __DIR__ . '/Fixtures/MissingConstException', self::PUBLIC_DIR);
     }
 
     public function testParseException1(): void
@@ -53,7 +44,7 @@ final class LoaderTest extends TestCase
         static::expectException(ParseException::class);
 
         $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/ParseException/1');
+        $loader->load('/wp', __DIR__ . '/Fixtures/ParseException/1', self::PUBLIC_DIR);
     }
 
     public function testParseException2(): void
@@ -61,29 +52,38 @@ final class LoaderTest extends TestCase
         static::expectException(ParseException::class);
 
         $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/ParseException/2');
+        $loader->load('/wp', __DIR__ . '/Fixtures/ParseException/2', self::PUBLIC_DIR);
     }
 
-    public function testCorrectData(): void
+    public function testSuccessful(): void
     {
         $projectRoot = __DIR__ . '/Fixtures/Successfull';
-        $webRoot = $projectRoot . '/public';
 
         $loader = new Loader();
-        $loader->load('/wp', $projectRoot, $webRoot);
-        $loader->debugSettings();
+        $loader->load('/wp', $projectRoot, self::PUBLIC_DIR);
+        $loader->debugSettings('/debug');
 
-        static::assertTrue(\is_dir($projectRoot . '/var/log'));
+        static::assertTrue(\is_dir($projectRoot . '/debug'));
+
+        if (\file_exists($projectRoot . '/debug')) {
+            \rmdir($projectRoot . '/debug');
+        }
 
         static::assertTrue(\defined('WP_DEBUG_DIR'));
         static::assertTrue(\defined('WP_DEBUG_LOG'));
-        static::assertEquals(\constant('WP_DEBUG_DIR'), $_ENV['WP_DEBUG_DIR']);
-        static::assertEquals(\constant('WP_DEBUG_LOG'), $_ENV['WP_DEBUG_LOG']);
+        static::assertEquals(\constant('WP_DEBUG_DIR'), $_ENV['PROJECT_ROOT'] . '/debug');
+        static::assertEquals(\constant('WP_DEBUG_LOG'), WP_DEBUG_DIR . \sprintf('/%s.log', $_ENV['APP_ENV']));
 
         foreach (Loader::REQUIRED_CONSTANTS as $constant) {
             static::assertTrue(\defined($constant));
-            static::assertTrue(isset($_ENV[$constant]));
-            static::assertEquals(\constant($constant), $_ENV[$constant]);
         }
+    }
+
+    public function testPathException(): void
+    {
+        static::expectException(PathException::class);
+
+        $loader = new Loader();
+        $loader->load('/wp', __DIR__ . '/Fixtures/PathException/1');
     }
 }
