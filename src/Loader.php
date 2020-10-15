@@ -16,7 +16,7 @@ namespace WordpressWrapper\Loader;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Dotenv\Exception\FormatException;
 use Symfony\Component\Dotenv\Exception\PathException as DotEnvPathException;
-use WordpressWrapper\Loader\Exception\MissingEnvException;
+use WordpressWrapper\Loader\Exception\MissingConstantException;
 use WordpressWrapper\Loader\Exception\ParseException;
 use WordpressWrapper\Loader\Exception\PathException;
 
@@ -26,7 +26,6 @@ use WordpressWrapper\Loader\Exception\PathException;
 final class Loader
 {
     public const REQUIRED_CONSTANTS = [
-        'APP_ENV',
         'DB_NAME',
         'DB_USER',
         'DB_PASSWORD',
@@ -89,15 +88,15 @@ final class Loader
             throw new ParseException($e->getMessage(), $e->getCode(), $e);
         }
 
+        $this->defineConstants($_ENV['APP_ENV']);
         $this->checkRequirements();
-        $this->defineConstants();
 
-        $this->addEnv('WP_CONTENT_DIR', $_ENV['WEB_ROOT'] . $_ENV['CONTENT_DIR'], true);
-        $this->addEnv('WP_CONTENT_URL', $_ENV['WP_HOME'] . $_ENV['CONTENT_DIR'], true);
-        $this->addEnv('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath . '/', true);
+        $this->defineConstant('WP_CONTENT_DIR', $_ENV['WEB_ROOT'] . CONTENT_DIR);
+        $this->defineConstant('WP_CONTENT_URL', WP_HOME . CONTENT_DIR);
+        $this->defineConstant('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath . '/');
 
-        if (!\is_dir($_ENV['ABSPATH'])) {
-            throw new PathException(\sprintf('Unable to find wordpress core directory "%s".', $_ENV['ABSPATH']));
+        if (!\is_dir(ABSPATH)) {
+            throw new PathException(\sprintf('Unable to find wordpress core directory "%s".', ABSPATH));
         }
 
         $this->defineDefaultConstants();
@@ -110,11 +109,11 @@ final class Loader
      */
     public function debugSettings(string $logPath = '/var/log'): void
     {
-        $this->addEnv('WP_DEBUG_DIR', $_ENV['PROJECT_ROOT'] . $logPath, true);
-        $this->addEnv('WP_DEBUG_LOG', $_ENV['WP_DEBUG_DIR'] . \sprintf('/%s.log', $_ENV['APP_ENV']), true);
+        $this->defineConstant('WP_DEBUG_DIR', $_ENV['PROJECT_ROOT'] . $logPath);
+        $this->defineConstant('WP_DEBUG_LOG', WP_DEBUG_DIR . \sprintf('/%s.log', $_ENV['APP_ENV']));
 
-        if (!\file_exists($_ENV['WP_DEBUG_DIR'])) {
-            \mkdir($_ENV['WP_DEBUG_DIR'], 0777, true);
+        if (!\file_exists(WP_DEBUG_DIR)) {
+            \mkdir(WP_DEBUG_DIR, 0777, true);
         }
     }
 
@@ -131,13 +130,13 @@ final class Loader
     /**
      * Check if all required environment variables are exist in .env* files.
      *
-     * @throws MissingEnvException when required env missing
+     * @throws MissingConstantException when required env missing
      */
     private function checkRequirements(): void
     {
-        foreach (self::REQUIRED_CONSTANTS as $requiredConstant) {
-            if (!\array_key_exists($requiredConstant, $_ENV)) {
-                throw new MissingEnvException($requiredConstant);
+        foreach (self::REQUIRED_CONSTANTS as $constantName) {
+            if (!\defined($constantName)) {
+                throw new MissingConstantException($constantName);
             }
         }
     }
@@ -145,14 +144,14 @@ final class Loader
     /**
      * Define constant depend on .env* files.
      */
-    private function defineConstants(): void
+    private function defineConstants(string $appEnv): void
     {
-        $envVars = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . '/.env');
-        $envVars = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . '/.env.local', $envVars);
-        $envVars = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . \sprintf('/.env.%s', $envVars['APP_ENV']), $envVars);
-        $envVars = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . \sprintf('/.env.%s.local', $envVars['APP_ENV']), $envVars);
+        $constants = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . '/.const');
+        $constants = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . '/.const.local', $constants);
+        $constants = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . \sprintf('/.const.%s', $appEnv), $constants);
+        $constants = $this->parseEnvFile($_ENV['PROJECT_ROOT'] . \sprintf('/.const.%s.local', $appEnv), $constants);
 
-        foreach ($envVars as $key => $value) {
+        foreach ($constants as $key => $value) {
             $this->defineConstant($key, $value);
         }
     }
@@ -195,7 +194,7 @@ final class Loader
     }
 
     /**
-     * Convert string booleat values "true" and "false" to boolean.
+     * Convert string boolean values "true" and "false" to boolean.
      *
      * @param $value
      *
@@ -216,17 +215,12 @@ final class Loader
     /**
      * Adding new env value.
      *
-     * @param string $key            env key
-     * @param mixed  $value          env value
-     * @param bool   $defineConstant if true define new constant
+     * @param string $key   env key
+     * @param mixed  $value env value
      */
-    private function addEnv(string $key, $value, bool $defineConstant = false): void
+    private function addEnv(string $key, $value): void
     {
         $_ENV[$key] = $this->stringToBoolean($value);
-
-        if ($defineConstant) {
-            $this->defineConstant($key, $value);
-        }
     }
 
     /**
@@ -237,6 +231,7 @@ final class Loader
      */
     private function defineConstant(string $name, $value): void
     {
+        var_dump($value);
         if (!\defined($name)) {
             \define($name, $this->stringToBoolean($value));
         }
