@@ -231,6 +231,7 @@ final class Loader
      */
     private function defineConstant(string $name, $value): void
     {
+        var_dump($value);
         if (!\defined($name)) {
             \define($name, $this->stringToBoolean($value));
         }

@@ -39,20 +39,26 @@ final class LoaderTest extends TestCase
         $loader->load('/wp', __DIR__ . '/Fixtures/MissingConstException', self::PUBLIC_DIR);
     }
 
-    public function testParseException1(): void
+    /**
+     * @dataProvider parseExceptionProvider
+     */
+    public function testParseException($path): void
     {
         static::expectException(ParseException::class);
 
         $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/ParseException/1', self::PUBLIC_DIR);
+        $loader->load('/wp', $path, self::PUBLIC_DIR);
     }
 
-    public function testParseException2(): void
+    /**
+     * @dataProvider pathExceptionProvider
+     */
+    public function testPathException($wpCorePath, $projectRoot): void
     {
-        static::expectException(ParseException::class);
+        static::expectException(PathException::class);
 
         $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/ParseException/2', self::PUBLIC_DIR);
+        $loader->load($wpCorePath, $projectRoot);
     }
 
     public function testSuccessful(): void
@@ -79,11 +85,20 @@ final class LoaderTest extends TestCase
         }
     }
 
-    public function testPathException(): void
+    public function pathExceptionProvider()
     {
-        static::expectException(PathException::class);
+        return [
+            ['/wp', __DIR__ . '/Fixtures/PathException/1'],
+            ['/wordpress', __DIR__ . '/Fixtures/PathException/2'],
+        ];
+    }
 
-        $loader = new Loader();
-        $loader->load('/wp', __DIR__ . '/Fixtures/PathException/1');
+    public function parseExceptionProvider()
+    {
+        return [
+            [__DIR__ . '/Fixtures/ParseException/1'],
+            [__DIR__ . '/Fixtures/ParseException/2'],
+            [__DIR__ . '/Fixtures/ParseException/3'],
+        ];
     }
 }
