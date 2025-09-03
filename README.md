@@ -2,7 +2,7 @@
 
 Loading constants and environment variables from .env files.
 
-[![Build Status](https://travis-ci.org/Zippovich2/wordpress-loader.svg?branch=master)](https://travis-ci.org/Zippovich2/wordpress-loader)
+[![CI](https://github.com/Zippovich2/wordpress-loader/actions/workflows/main.yml/badge.svg)](https://github.com/Zippovich2/wordpress-loader/actions/workflows/main.yml)
 [![Packagist](https://img.shields.io/packagist/v/zippovich2/wordpress-loader.svg)](https://packagist.org/packages/zippovich2/wordpress-loader)
 
 
