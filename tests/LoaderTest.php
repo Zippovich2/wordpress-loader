@@ -55,7 +55,7 @@ final class LoaderTest extends TestCase
      */
     public function testPathException($wpCorePath, $projectRoot): void
     {
-        static::expectException(PathException::class);
+        self::expectException(PathException::class);
 
         $loader = new Loader();
         $loader->load($wpCorePath, $projectRoot);
@@ -85,7 +85,7 @@ final class LoaderTest extends TestCase
         }
     }
 
-    public function pathExceptionProvider()
+    public static function pathExceptionProvider()
     {
         return [
             ['/wp', __DIR__ . '/Fixtures/PathException/1'],
@@ -93,7 +93,7 @@ final class LoaderTest extends TestCase
         ];
     }
 
-    public function parseExceptionProvider()
+    public static function parseExceptionProvider()
     {
         return [
             [__DIR__ . '/Fixtures/ParseException/1'],
