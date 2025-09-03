@@ -113,7 +113,7 @@ final class Loader
         $this->defineConstant('WP_DEBUG_LOG', WP_DEBUG_DIR . \sprintf('/%s.log', $_ENV['APP_ENV']));
 
         if (!file_exists(WP_DEBUG_DIR)) {
-            mkdir(WP_DEBUG_DIR, 0o777, true);
+            mkdir(WP_DEBUG_DIR, 0777, true);
         }
     }
 
