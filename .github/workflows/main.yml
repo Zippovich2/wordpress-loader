@@ -10,7 +10,7 @@ jobs:
             matrix:
                 php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
         container:
-            image: ${{ matrix.php-versions }}-cli
+            image: php:${{ matrix.php-versions }}-cli
         steps:
             - name: Install deps
               run: composer install
