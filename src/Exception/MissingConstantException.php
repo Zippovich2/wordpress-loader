@@ -18,7 +18,7 @@ namespace WordpressWrapper\Loader\Exception;
  */
 class MissingConstantException extends \DomainException
 {
-    public function __construct(string $env, int $code = 0, \Throwable $previous = null)
+    public function __construct(string $env, int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct(\sprintf('Missing constant "%s".', $env), $code, $previous);
     }

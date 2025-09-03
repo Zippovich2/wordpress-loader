@@ -8,10 +8,14 @@ For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
 HEADER;
 
-$finder = \PhpCsFixer\Finder::create()
+$finder = (new PhpCsFixer\Finder())
+    ->files()
     ->in([
         'src',
         'tests',
+    ])
+    ->exclude([
+        'vendor',
     ])
     ->name([
         '*.php',
@@ -19,23 +23,17 @@ $finder = \PhpCsFixer\Finder::create()
     ])
 ;
 
-return \PhpCsFixer\Config::create()
+$config = new PhpCsFixer\Config();
+
+return $config
     ->setCacheFile(__DIR__ . '/.php_cs.cache')
     ->setFinder($finder)
     ->setRules([
         '@PSR2' => true,
         '@Symfony' => true,
         '@Symfony:risky' => true,
-        '@PHP70Migration' => true,
-        '@PHP70Migration:risky' => true,
-        '@PHP71Migration' => true,
-        '@PHP71Migration:risky' => true,
-        '@PHP73Migration' => true,
-        'header_comment' => [
-            'header' => $header,
-            'commentType' => 'comment',
-            'separate' => 'both',
-        ],
+        '@PHP80Migration' => true,
+        '@PHP80Migration:risky' => true,
         'list_syntax' => ['syntax' => 'short'],
         'array_syntax' => ['syntax' => 'short'],
         'concat_space' => ['spacing' => 'one'],
@@ -46,9 +44,10 @@ return \PhpCsFixer\Config::create()
         'no_superfluous_elseif' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
-        'php_unit_test_case_static_method_calls' => true,
         'combine_consecutive_issets' => true,
+        'random_api_migration' => true,
         'native_function_invocation' => ['strict' => true],
+        'multiline_promoted_properties' => true,
         'blank_line_before_statement' => ['statements' => [
             'break',
             'continue',
@@ -64,4 +63,5 @@ return \PhpCsFixer\Config::create()
             'switch',
         ]],
     ])
+    ->setRiskyAllowed(true)
 ;
