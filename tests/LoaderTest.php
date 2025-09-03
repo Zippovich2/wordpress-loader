@@ -26,7 +26,7 @@ final class LoaderTest extends TestCase
 {
     public const PUBLIC_DIR = __DIR__ . '/Fixtures/public';
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $_ENV = [];
     }
@@ -69,10 +69,10 @@ final class LoaderTest extends TestCase
         $loader->load('/wp', $projectRoot, self::PUBLIC_DIR);
         $loader->debugSettings('/debug');
 
-        static::assertTrue(\is_dir($projectRoot . '/debug'));
+        static::assertTrue(is_dir($projectRoot . '/debug'));
 
-        if (\file_exists($projectRoot . '/debug')) {
-            \rmdir($projectRoot . '/debug');
+        if (file_exists($projectRoot . '/debug')) {
+            rmdir($projectRoot . '/debug');
         }
 
         static::assertTrue(\defined('WP_DEBUG_DIR'));

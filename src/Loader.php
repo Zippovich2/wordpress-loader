@@ -72,8 +72,8 @@ final class Loader
      * @param string|null $projectRootPath path to the project root, project root must contain .env file.
      * @param string|null $publicDirPath   path to the index.php
      *
-     * @throws PathException  when a .env file does not exist or is not readable.
-     * @throws ParseException when .env file has a syntax error.
+     * @throws PathException  when the .env file does not exist or is not readable.
+     * @throws ParseException when the .env file has a syntax error.
      */
     public function load(string $wpCorePath = '/wp', ?string $projectRootPath = null, ?string $publicDirPath = null): void
     {
@@ -95,7 +95,7 @@ final class Loader
         $this->defineConstant('WP_CONTENT_URL', WP_HOME . CONTENT_DIR);
         $this->defineConstant('ABSPATH', $_ENV['WEB_ROOT'] . $wpCorePath . '/');
 
-        if (!\is_dir(ABSPATH)) {
+        if (!is_dir(ABSPATH)) {
             throw new PathException(\sprintf('Unable to find wordpress core directory "%s".', ABSPATH));
         }
 
@@ -103,7 +103,7 @@ final class Loader
     }
 
     /**
-     * Create constant which required for debug and trying create log dir if it not exists.
+     * Create constant which required for debug and trying to create log dir if it not exists.
      *
      * @param string $logPath path where log files should be created
      */
@@ -112,8 +112,8 @@ final class Loader
         $this->defineConstant('WP_DEBUG_DIR', $_ENV['PROJECT_ROOT'] . $logPath);
         $this->defineConstant('WP_DEBUG_LOG', WP_DEBUG_DIR . \sprintf('/%s.log', $_ENV['APP_ENV']));
 
-        if (!\file_exists(WP_DEBUG_DIR)) {
-            \mkdir(WP_DEBUG_DIR, 0777, true);
+        if (!file_exists(WP_DEBUG_DIR)) {
+            mkdir(WP_DEBUG_DIR, 0o777, true);
         }
     }
 
@@ -174,7 +174,7 @@ final class Loader
             throw new ParseException($e->getMessage(), $e->getCode(), $e);
         }
 
-        return \array_merge($oldEnvVars, $envVars);
+        return array_merge($oldEnvVars, $envVars);
     }
 
     /**
@@ -186,8 +186,8 @@ final class Loader
      */
     private function getFileContent(string $path): string
     {
-        if (\file_exists($path)) {
-            return \file_get_contents($path);
+        if (file_exists($path)) {
+            return file_get_contents($path);
         }
 
         return '';
@@ -195,8 +195,6 @@ final class Loader
 
     /**
      * Convert string boolean values "true" and "false" to boolean.
-     *
-     * @param $value
      *
      * @return bool
      */
@@ -224,7 +222,7 @@ final class Loader
     }
 
     /**
-     * Defining new constant if not defined.
+     * Defining a new constant if not defined.
      *
      * @param string $name  constant name
      * @param mixed  $value constant value
