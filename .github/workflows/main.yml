@@ -13,7 +13,7 @@ jobs:
             image: php:${{ matrix.php-versions }}-cli
         steps:
             - name: Install zip/unzip
-              run: sudo apt-get update && sudo apt-get install -y zip unzip
+              run: apt-get update && apt-get install -y zip unzip
             - name: Install composer
               run: |
                 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
